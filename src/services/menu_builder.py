@@ -1,5 +1,4 @@
 from typing import Dict, List
-
 from services.inventory_control import InventoryMapping
 from services.menu_data import MenuData
 
@@ -21,9 +20,21 @@ class MenuBuilder:
             ][0]
         except IndexError:
             raise ValueError("Dish does not exist")
-
         self.inventory.consume_recipe(curr_dish.recipe)
 
     # Req 4
     def get_main_menu(self, restriction=None) -> List[Dict]:
-        pass
+        return [
+            {
+                "dish_name": dish.name,
+                "ingredients": dish.get_ingredients(),
+                "price": dish.price,
+                "restrictions": dish.get_restrictions(),
+            }
+            for dish in self.menu_data.dishes
+            if restriction not in dish.get_restrictions()
+            and all(
+                ingredient in self.inventory.inventory
+                for ingredient in dish.get_ingredients()
+            )
+        ]
